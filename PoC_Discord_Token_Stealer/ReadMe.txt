@@ -28,3 +28,6 @@ Autres remarques :
 AppWizard utilise des commentaires "TODO:" pour indiquer les parties du code source où vous devrez ajouter ou modifier du code.
 
 /////////////////////////////////////////////////////////////////////////////
+
+
+Pour le PoC_Discord_Token_Stealer_Linux.cpp, G++ suffit. 
